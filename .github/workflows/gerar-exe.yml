@@ -1,0 +1,29 @@
+name: Gerar aplicativo Windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Baixar os arquivos do projeto
+        uses: actions/checkout@v4
+
+      - name: Instalar .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Gerar EXE para Windows 64 bits
+        run: dotnet publish BalanceadorDnD.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true -o ./publish
+
+      - name: Disponibilizar o executável para download
+        uses: actions/upload-artifact@v4
+        with:
+          name: Balanceador-DnD-Windows
+          path: publish/BalanceadorDnD.exe
+          if-no-files-found: error
+          retention-days: 30
